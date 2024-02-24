@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'model/product.dart';
 import 'login.dart';
+import 'product_search_delegate.dart';
 
 // TODO: Add velocity constant (104)
 const double _kFlingVelocity = 2.0;
@@ -12,15 +13,26 @@ class Backdrop extends StatefulWidget {
   final Widget backLayer;
   final Widget frontTitle;
   final Widget backTitle;
+  final List<Product> allProducts; // Tambahkan properti allProducts
+  List<Product> filteredProducts; // Tambahkan properti filteredProducts
 
-  const Backdrop({
+  Backdrop({
     required this.currentCategory,
     required this.frontLayer,
     required this.backLayer,
     required this.frontTitle,
     required this.backTitle,
+    required this.allProducts,
+    required this.filteredProducts, // Inisialisasi filteredProducts
     Key? key,
   }) : super(key: key);
+
+  // Tambahkan fungsi pencarian
+  List<Product> searchProducts(String query) {
+    return allProducts
+        .where((product) => product.name.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+  }
 
   @override
   _BackdropState createState() => _BackdropState();
@@ -88,7 +100,7 @@ class _BackdropTitle extends AnimatedWidget {
     final Animation<double> animation = _listenable;
 
     return DefaultTextStyle(
-      style: Theme.of(context).textTheme.headline6!,
+      style: Theme.of(context).textTheme.titleLarge!,
       softWrap: false,
       overflow: TextOverflow.ellipsis,
       child: Row(children: <Widget>[
@@ -148,7 +160,7 @@ class _BackdropTitle extends AnimatedWidget {
     );
   }
 }
-// TODO: Add _BackdropState class (104)
+
 // TODO: Add _BackdropState class (104)
 class _BackdropState extends State<Backdrop>
     with SingleTickerProviderStateMixin {
@@ -237,11 +249,11 @@ class _BackdropState extends State<Backdrop>
     var appBar = AppBar(
       elevation: 0.0,
       titleSpacing: 0.0,
-      // TODO: Replace leading menu icon with IconButton (104)
-      leading: IconButton(
-        icon: const Icon(Icons.menu),
-        onPressed: _toggleBackdropLayerVisibility,
-      ),
+      // // TODO: Replace leading menu icon with IconButton (104)
+      // leading: IconButton(
+      //   icon: const Icon(Icons.menu),
+      //   onPressed: _toggleBackdropLayerVisibility,
+      // ),
       // TODO: Remove leading property (104)
       // TODO: Create title with _BackdropTitle parameter (104)
       title: _BackdropTitle(
@@ -255,55 +267,52 @@ class _BackdropState extends State<Backdrop>
         IconButton(
           icon: const Icon(
             Icons.search,
-            semanticLabel: 'login', // New code
+            semanticLabel: 'Searching', // New code
           ),
-          onPressed: () {
-            // TODO: Add open login (104)
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => LoginPage()),
-            );
-          },
+          onPressed: () async {
+            final String? query = await showSearch(
+              context: context,
+              delegate: ProductSearchDelegate(backdrop: widget),
+             );
+            if (query != null) {
+    // Panggil fungsi pencarian dan perbarui tampilan produk
+              final List<Product> filteredProducts = widget.searchProducts(query);
+              setState(() {
+                widget.filteredProducts = filteredProducts;
+                });
+              }
+            },
         ),
-        IconButton(
-          icon: const Icon(
-            Icons.tune,
-            semanticLabel: 'login', // New code
-          ),
-          onPressed: () {
-            // TODO: Add open login (104)
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (BuildContext context) => LoginPage()),
-            );
-          },
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.search,
-            semanticLabel: 'search',
-          ),
-          onPressed: () {
-          // TODO: Add open login (104)
-          },
-        ),
+        // IconButton(
+        //   icon: Icon(
+        //     Icons.search,
+        //     semanticLabel: 'search',
+        //   ),
+        //   onPressed: () {
+        //   // TODO: Add open login (104)
+        //   },
+        // ),
         IconButton(
           icon: Icon(
             Icons.tune,
             semanticLabel: 'filter',
           ),
           onPressed: () {
-          // TODO: Add open login (104)
+            // TODO: Add open login (104)
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => LoginPage()),
+            );
           },
         ),
       ],
     );
     return Scaffold(
       appBar: appBar,
-      // TODO: Return a LayoutBuilder widget (104)
-      body: LayoutBuilder(builder: _buildStack),
+      body: LayoutBuilder(builder: (context, constraints) {
+        return _buildStack(context, constraints);
+      }),
     );
   }
 }

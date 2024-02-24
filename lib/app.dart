@@ -33,6 +33,22 @@ class ShrineApp extends StatefulWidget {
 
 class _ShrineAppState extends State<ShrineApp> {
   Category _currentCategory = Category.all;
+  List<Product> _allProducts = []; // Tambahkan list produk
+  List<Product> _filteredProducts = []; // Tambahkan list produk yang difilter
+
+  // Inisialisasi data produk
+  @override
+  void initState() {
+    super.initState();
+    _loadProducts();
+  }
+
+  void _loadProducts() {
+    // Isi _allProducts dengan produk dari sumber data Anda
+    // ...
+    // Set _filteredProducts awalnya sama dengan _allProducts
+    _filteredProducts = List.from(_allProducts);
+  }
 
   void _onCategoryTap(Category category) {
     setState(() {
@@ -60,6 +76,8 @@ class _ShrineAppState extends State<ShrineApp> {
               ),
               frontTitle: const Text('SHRINE'),
               backTitle: const Text('MENU'),
+              allProducts: _allProducts,
+              filteredProducts: _filteredProducts,
             ),
       },
       // TODO: Customize the theme (103)

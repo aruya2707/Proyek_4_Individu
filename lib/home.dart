@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+// import 'package:intl/intl.dart';
 import 'model/product.dart';
 import 'model/products_repository.dart';
-import 'colors.dart';
+// import 'colors.dart';
 import 'supplemental/asymmetric_view.dart';
 
   class HomePage extends StatelessWidget {
