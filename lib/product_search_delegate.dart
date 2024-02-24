@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'backdrop.dart';
 import 'model/product.dart'; // Pastikan untuk mengimpor model produk atau sesuaikan dengan struktur Anda
 import 'supplemental/product_card.dart';
+import 'model/products_repository.dart';
 
 class ProductSearchDelegate extends SearchDelegate<String> {
   final Backdrop backdrop;
@@ -36,24 +37,58 @@ class ProductSearchDelegate extends SearchDelegate<String> {
   }
 
   @override
-  Widget buildSuggestions(BuildContext context) {
-    return _buildSearchResults(context); // Gunakan hasil pencarian yang sama untuk saran
-  }
+  @override
+Widget buildSuggestions(BuildContext context) {
+  // Dapatkan semua produk untuk kategori saat ini
+  List<Product> allProducts = ProductsRepository.loadProducts(backdrop.currentCategory);
+
+  // Filter produk berdasarkan query
+  List<Product> suggestions = allProducts
+      .where((product) => product.name.toLowerCase().contains(query.toLowerCase()))
+      .toList();
+
+  return ListView.builder(
+    itemCount: suggestions.length,
+    itemBuilder: (context, index) {
+      Product product = suggestions[index];
+
+      return ListTile(
+        title: Text(product.name),
+        onTap: () {
+          // Setelah item dipilih, isi kotak pencarian dengan nama produk
+          query = product.name;
+          // Tampilkan hasil pencarian sesuai dengan produk yang dipilih
+          showResults(context);
+        },
+      );
+    },
+  );
+}
+
 
   Widget _buildSearchResults(BuildContext context) {
-    // Gantilah dengan logika pencarian sesungguhnya atau hasil dari backend aplikasi Anda
-    List<Product> searchResults = backdrop.searchProducts(query);
+  // Buat instance repository produk yang sesuai
+  ProductsRepository productsRepository = ProductsRepository();
 
-    return ListView.builder(
-      itemCount: searchResults.length,
-      itemBuilder: (context, index) {
-        Product product = searchResults[index];
+  // Dapatkan semua produk untuk kategori saat ini
+  List<Product> allProducts = ProductsRepository.loadProducts(backdrop.currentCategory);
 
-        return ProductCard(
-          imageAspectRatio: 33 / 49, // Sesuaikan sesuai kebutuhan Anda
-          product: product,
-        );
-      },
-    );
-  }
+  // Filter produk berdasarkan query
+  List<Product> searchResults = allProducts
+      .where((product) => product.name.toLowerCase().contains(query.toLowerCase()))
+      .toList();
+
+  return ListView.builder(
+    itemCount: searchResults.length,
+    itemBuilder: (context, index) {
+      Product product = searchResults[index];
+
+      return ProductCard(
+        imageAspectRatio: 55 / 49,
+        product: product,
+      );
+    },
+  );
 }
+}
+
